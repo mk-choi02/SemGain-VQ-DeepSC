@@ -1,0 +1,31 @@
+name: Validation and 20-epoch smoke
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Unit and integration mock tests
+        run: python -m pytest -q
+      - name: 20 epoch synthetic allocation policy training
+        run: python -m scripts.train_policy --episodes 12 --epochs 20 --length 12 --budget-per-token 14 --out checkpoints/smoke_policy.pt
+      - name: Toy communication smoke test
+        run: python -m scripts.run_semgain --mode toy --length 12 --trials 8 --snrs 0,6 --group-size 4 --out results/toy_smoke.json
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-results
+          path: |
+            checkpoints/smoke_policy.pt
+            results/toy_smoke.*
+          if-no-files-found: ignore
