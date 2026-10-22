@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semgain-deepsc"
+version = "0.2.0"
+description = "Research prototype: marginal semantic gain, grouped UEP and real CRC-8 QPSK header for VQ-DeepSC"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "torch>=2.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.3"]
+
+[tool.setuptools.packages.find]
+include = ["semgain*"]
