@@ -13,10 +13,12 @@ class Allocation:
 
 
 def _verify(cost: np.ndarray, budget: int, n: int):
-    if cost.shape[0] != n or cost.ndim != 2 or np.any(cost <= 0):
+    if cost.ndim != 2 or cost.shape[0] != n or cost.shape[1] < 1 or np.any(cost <= 0):
         raise ValueError('cost must be positive [L,A]')
-    if budget < sum(cost[:, 0]):
-        raise ValueError(f'Insufficient data budget: need {sum(cost[:,0])}, have {budget}')
+    if not np.issubdtype(cost.dtype, np.integer):
+        raise ValueError('Costs must be integer symbol counts')
+    if budget < int(np.min(cost, axis=1).sum()):
+        raise ValueError(f'Insufficient data budget: need {int(np.min(cost, axis=1).sum())}, have {budget}')
 
 
 def dp_min_risk(risk: np.ndarray, cost: np.ndarray, budget: int) -> Allocation:
@@ -27,8 +29,8 @@ def dp_min_risk(risk: np.ndarray, cost: np.ndarray, budget: int) -> Allocation:
     """
     risk = np.asarray(risk, dtype=float)
     cost = np.asarray(cost, dtype=int)
-    if risk.shape != cost.shape:
-        raise ValueError('risk and cost shapes differ')
+    if risk.shape != cost.shape or not np.isfinite(risk).all():
+        raise ValueError('risk/cost shapes differ or risk is not finite')
     l, a = risk.shape
     _verify(cost, budget, l)
     dp = np.full(budget+1, np.inf)
