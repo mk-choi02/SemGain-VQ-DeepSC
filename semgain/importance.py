@@ -35,6 +35,12 @@ class PositionContextImportance(nn.Module):
         b, l, d = m.shape
         if l > self.max_len:
             raise ValueError('Sequence longer than max_len')
+        if mask.shape != (b, l) or mask.dtype != torch.bool:
+            raise ValueError('mask must be a boolean [B,L] tensor')
+        if not mask.any(dim=-1).all():
+            raise ValueError('Each sentence needs at least one valid token')
+        if temperature <= 0:
+            raise ValueError('temperature must be positive')
         lengths = mask.long().sum(-1).clamp(min=1)
         global_m = (m*mask[...,None]).sum(dim=1, keepdim=True)/lengths[:,None,None]
         position = (torch.arange(l, device=m.device, dtype=m.dtype)[None,:,None] + 1)/lengths[:,None,None]
