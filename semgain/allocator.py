@@ -17,8 +17,8 @@ def _verify(cost: np.ndarray, budget: int, n: int):
         raise ValueError('cost must be positive [L,A]')
     if not np.issubdtype(cost.dtype, np.integer):
         raise ValueError('Costs must be integer symbol counts')
-    if budget < int(np.min(cost, axis=1).sum()):
-        raise ValueError(f'Insufficient data budget: need {int(np.min(cost, axis=1).sum())}, have {budget}')
+    if budget < int(cost[:, 0].sum()):
+        raise ValueError(f'Insufficient data budget: need {int(cost[:, 0].sum())}, have {budget}')
 
 
 def dp_min_risk(risk: np.ndarray, cost: np.ndarray, budget: int) -> Allocation:
