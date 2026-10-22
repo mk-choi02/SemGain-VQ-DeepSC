@@ -14,6 +14,8 @@ class VectorCodebook(nn.Module):
             raise ValueError('Codebook size must be a power of two')
         if codewords.shape[0].bit_length() % 2 != 1:  # log2(K) must be even for QPSK
             raise ValueError('Codebook log2(K) must be even for QPSK')
+        if not torch.isfinite(codewords).all():
+            raise ValueError('Codewords must be finite')
         self.register_buffer('weight', codewords.detach().clone().float())
 
     @property
@@ -40,7 +42,11 @@ def fit_kmeans(x: torch.Tensor, k: int = 256, iters: int = 30,
     """Deterministic Lloyd updates with random-point replacement of empty groups."""
     if k < 2 or k & (k-1) or k.bit_length() % 2 != 1:
         raise ValueError('For QPSK use K=4,16,64,256,...')
+    if x.ndim < 2 or x.shape[-1] == 0 or chunk <= 0 or iters <= 0:
+        raise ValueError('Expected nonempty vectors, positive chunk and iterations')
     x = x.detach().float().reshape(-1, x.shape[-1]).cpu()
+    if not torch.isfinite(x).all():
+        raise ValueError('Training vectors must be finite')
     if x.shape[0] < k:
         raise ValueError(f'Need >= {k} samples, got {x.shape[0]}')
     gen = torch.Generator().manual_seed(seed)
