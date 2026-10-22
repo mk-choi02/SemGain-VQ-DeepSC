@@ -1,6 +1,6 @@
-# SemGain-VQ-DeepSC (v0.2) — Channel-Aware Marginal Semantic Gain
+# SemGain-VQ-DeepSC (v0.1) — Channel-Aware Marginal Semantic Gain
 
-**Research implementation / 실험용 프로토타입.** This is a **new, independent Python repository** that uses the public [EHeum/DeepSC](https://github.com/EHeum/DeepSC) encoder/decoder through an adapter. It neither vendors the DeepSC source nor includes its checkpoints or datasets.
+**Research implementation / Prototype.** This is a **new, independent Python repository** that uses the public [EHeum/DeepSC](https://github.com/EHeum/DeepSC) encoder/decoder through an adapter. It neither vendors the DeepSC source nor includes its checkpoints or datasets.
 
 > **Verification scope:** numerical tests and standalone AWGN/QPSK toy simulations run. The true pretrained DeepSC/Europarl end-to-end pipeline has **not been run here** because its source checkout, matching vocabulary, pretrained checkpoint and dataset are not bundled. Run `verify_environment.py` locally before interpreting real-model results. `toy` is not semantic-communication evidence.
 
@@ -16,7 +16,7 @@ min_{a_i} sum_i R[i,a_i] s.t. sum_i cost[a_i] + header + pilot <= B.
 
 Baseline algorithms: `uniform`, `importance_only`, `marginal_greedy`, `marginal_dp` (exact multiple-choice knapsack for this additive risk model). **This does not guarantee minimization of full sentence distortion** when errors interact. Delta may be signed. Finite differences based on one-bit flips leave multi-bit error events unmeasured, so they are only an approximation.
 
-## What's been improved in v0.2
+## What's been improved in v0.1
 
 1. **Actually transmit the action-profile header** with QPSK, bit repetition and CRC-8. Profile packet failures are measured, not silently assumed away. Token count, framing and decoder synchronization are still shared assumptions. CRC undetected errors are conservatively counted as a failed profile in evaluation (not a full production protocol).
 2. **Contiguous group-level UEP (`--group-size`)** jointly reduces header overhead and the number of independent action choices; compare group sizes 1/2/4/8. This is an overhead–allocation-granularity ablation, not free gain.
